@@ -1,0 +1,94 @@
+name: Build and Release Todo.rs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: todo-rs
+            asset_name: todo-rs-linux
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: todo-rs.exe
+            asset_name: todo-rs-windows.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+          
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+          
+      - name: Build Next.js UI
+        run: |
+          cd ui
+          bun i
+          bun run build
+          
+      - name: Build with cargo
+        run: |
+          cargo build --release --target ${{ matrix.target }}
+          
+      - name: Rename artifact (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          copy target\${{ matrix.target }}\release\${{ matrix.artifact_name }} ${{ matrix.asset_name }}
+          
+      - name: Rename artifact (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cp target/${{ matrix.target }}/release/${{ matrix.artifact_name }} ${{ matrix.asset_name }}
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+          
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: release-assets
+        
+      - name: Generate tag name
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "TAG_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
+          else
+            echo "TAG_NAME=v${{ github.run_number }}" >> $GITHUB_ENV
+          fi
+          ls -R release-assets/
+          
+      - name: Upload binaries to release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          files: |
+            release-assets/*
+          generate_release_notes: true
+          tag_name: ${{ env.TAG_NAME }}

@@ -1,0 +1,6 @@
+-- Your SQL goes here
+CREATE TABLE todo (
+  id INTEGER NOT NULL PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  completed BOOLEAN NOT NULL DEFAULT 'f'
+)
