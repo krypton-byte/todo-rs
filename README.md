@@ -227,7 +227,7 @@ Repository ini sudah dilengkapi dengan GitHub Actions workflow untuk deploy ke H
 
 ### **Prasyarat**
 1. Akun [Heroku](https://heroku.com)
-2. Heroku CLI terinstall (opsional, untuk setup awal)
+2. Heroku CLI terinstall (untuk setup awal)
 
 ### **Langkah-langkah Setup**
 
@@ -236,8 +236,12 @@ Repository ini sudah dilengkapi dengan GitHub Actions workflow untuk deploy ke H
    # Menggunakan Heroku CLI
    heroku create nama-aplikasi-anda
    
+   # Set container stack (PENTING!)
+   heroku stack:set container --app nama-aplikasi-anda
+   
    # Atau buat melalui Heroku Dashboard
    # https://dashboard.heroku.com/new-app
+   # Kemudian set stack via CLI: heroku stack:set container --app nama-aplikasi-anda
    ```
 
 2. **Dapatkan Heroku API Key**
@@ -263,6 +267,7 @@ Repository ini sudah dilengkapi dengan GitHub Actions workflow untuk deploy ke H
 - ✅ Build otomatis Rust backend
 - ✅ Docker container deployment ke Heroku
 - ✅ Manual trigger (workflow_dispatch) untuk kontrol penuh
+- ✅ Optimized Docker layer caching untuk build cepat
 
 ## 🤝 **Kontribusi**
 
