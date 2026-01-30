@@ -215,7 +215,12 @@ async fn main() {
                 )
             })
         );
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8000));
+    // Use PORT env var for Heroku, default to 8000 for local development
+    let port: u16 = std::env::var("PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8000);
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::debug!("Listening on {}", addr);
     let listener = TcpListener::bind(&addr).await.unwrap();
     axum::serve(listener, app)

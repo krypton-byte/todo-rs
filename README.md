@@ -221,6 +221,49 @@ npm run build
 cargo build --release
 ```
 
+## 🚀 **Deploy ke Heroku (One-Click)**
+
+Repository ini sudah dilengkapi dengan GitHub Actions workflow untuk deploy ke Heroku dengan satu kali klik.
+
+### **Prasyarat**
+1. Akun [Heroku](https://heroku.com)
+2. Heroku CLI terinstall (opsional, untuk setup awal)
+
+### **Langkah-langkah Setup**
+
+1. **Buat Aplikasi Heroku**
+   ```bash
+   # Menggunakan Heroku CLI
+   heroku create nama-aplikasi-anda
+   
+   # Atau buat melalui Heroku Dashboard
+   # https://dashboard.heroku.com/new-app
+   ```
+
+2. **Dapatkan Heroku API Key**
+   - Buka [Account Settings](https://dashboard.heroku.com/account)
+   - Scroll ke bagian "API Key"
+   - Klik "Reveal" untuk melihat API key
+
+3. **Tambahkan Secret di GitHub Repository**
+   - Buka repository → Settings → Secrets and variables → Actions
+   - Klik "New repository secret"
+   - Tambahkan secret dengan nama: `HEROKU_API_KEY`
+   - Value: API key dari Heroku
+
+4. **Deploy dengan One-Click**
+   - Buka tab "Actions" di repository
+   - Pilih workflow "Build and Deploy to Heroku"
+   - Klik "Run workflow"
+   - Masukkan nama aplikasi Heroku
+   - Klik "Run workflow" untuk memulai deployment
+
+### **Workflow Features**
+- ✅ Build otomatis Next.js frontend
+- ✅ Build otomatis Rust backend
+- ✅ Docker container deployment ke Heroku
+- ✅ Manual trigger (workflow_dispatch) untuk kontrol penuh
+
 ## 🤝 **Kontribusi**
 
 Proyek ini dikembangkan untuk tujuan akademik. Feedback dan saran untuk improvement sangat diterima.

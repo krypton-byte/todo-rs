@@ -1,0 +1,41 @@
+name: Build and Deploy to Heroku
+
+on:
+  workflow_dispatch:
+    inputs:
+      heroku_app_name:
+        description: 'Heroku application name'
+        required: true
+        type: string
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Heroku Container Registry
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          echo $HEROKU_API_KEY | docker login --username=_ --password-stdin registry.heroku.com
+
+      - name: Build Docker image
+        run: |
+          docker build -t registry.heroku.com/${{ inputs.heroku_app_name }}/web .
+
+      - name: Push to Heroku Container Registry
+        run: |
+          docker push registry.heroku.com/${{ inputs.heroku_app_name }}/web
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Release to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        run: |
+          heroku container:release web --app ${{ inputs.heroku_app_name }}
